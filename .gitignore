@@ -7,3 +7,4 @@ htmlcov
 .cache
 .venv
 .ruff_cache
+test.db
