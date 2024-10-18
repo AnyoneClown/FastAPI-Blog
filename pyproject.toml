@@ -2,13 +2,17 @@
 name = "fastapi-blog"
 version = "0.1.0"
 description = "API for managing Blog, comments with AI"
-authors = ["Denys https://github.com/AnyoneClown"]
+authors = ["Denys <https://github.com/AnyoneClown>"]
 license = "Apache License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.12.5"
 fastapi = {extras = ["standart"], version = "^0.115.2"}
+uvicorn = "^0.32.0"
+fastapi-users = {extras = ["sqlalchemy"], version = "^13.0.0"}
+python-dotenv = "^1.0.1"
+aiosqlite = "^0.20.0"
 
 
 [build-system]
