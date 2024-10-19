@@ -7,7 +7,7 @@ license = "Apache License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.12.5"
+python = ">=3.10,<3.13"
 fastapi = {extras = ["standart"], version = "^0.115.2"}
 uvicorn = "^0.32.0"
 fastapi-users = {extras = ["sqlalchemy"], version = "^13.0.0"}
