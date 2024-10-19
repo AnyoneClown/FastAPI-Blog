@@ -30,6 +30,6 @@ class CommentInDB(CommentBase):
 
 
 class CommentAnalytics(BaseModel):
-    date: str
+    date: str = Field(..., description="Date in ISO format (YYYY-MM-DD)")
     total_comments: int
     blocked_comments: int

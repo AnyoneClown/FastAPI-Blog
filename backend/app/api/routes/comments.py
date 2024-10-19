@@ -1,6 +1,7 @@
+from datetime import date
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.api.deps import CurrentActiveUser, get_async_session
@@ -9,9 +10,15 @@ from backend.app.crud.comment import (
     delete_comment,
     get_comment,
     get_comments,
+    get_comments_daily_breakdown,
     update_comment,
 )
-from backend.app.schemas.comment import CommentCreate, CommentInDB, CommentUpdate
+from backend.app.schemas.comment import (
+    CommentAnalytics,
+    CommentCreate,
+    CommentInDB,
+    CommentUpdate,
+)
 from backend.app.schemas.user import UserRead
 
 router = APIRouter()
@@ -57,3 +64,14 @@ async def delete_comment_route(
     current_user: UserRead = Depends(CurrentActiveUser),
 ):
     return await delete_comment(db=db, comment_id=comment_id)
+
+
+@router.get("/comments-daily-breakdown", response_model=list[CommentAnalytics])
+async def get_comments_daily_breakdown_route(
+    date_from: date = Query(..., description="Start date. Example: 2024-10-19"),
+    date_to: date = Query(..., description="End date. Example: 2024-10-19"),
+    db: AsyncSession = Depends(get_async_session),
+):
+    return await get_comments_daily_breakdown(
+        db=db, date_from=date_from, date_to=date_to
+    )

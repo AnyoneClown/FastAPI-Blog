@@ -1,12 +1,13 @@
 import logging
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from fastapi import HTTPException, status
+from sqlalchemy import case, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from backend.app.models.comment import Comment
-from backend.app.schemas.comment import CommentCreate, CommentUpdate
+from backend.app.schemas.comment import CommentAnalytics, CommentCreate, CommentUpdate
 from backend.app.schemas.user import UserRead
 from backend.app.utils.general import moderate_content
 
@@ -85,3 +86,29 @@ async def delete_comment(db: AsyncSession, comment_id: str) -> Comment:
     await db.commit()
     await db.refresh(db_comment)
     return db_comment
+
+
+async def get_comments_daily_breakdown(
+    db: AsyncSession, date_from: date, date_to: date
+) -> list[CommentAnalytics]:
+    result = await db.execute(
+        select(
+            func.date(Comment.created_at).label("date"),
+            func.count(Comment.id).label("total_comments"),
+            func.sum(case((Comment.is_blocked, 1), else_=0)).label("blocked_comments"),
+        )
+        .filter(
+            Comment.created_at >= date_from,
+            Comment.created_at <= date_to + timedelta(days=1),
+        )
+        .group_by(func.date(Comment.created_at))
+        .order_by(func.date(Comment.created_at))
+    )
+    return [
+        CommentAnalytics(
+            date=row._mapping["date"].isoformat(),
+            total_comments=row._mapping["total_comments"],
+            blocked_comments=row._mapping["blocked_comments"],
+        )
+        for row in result.all()
+    ]
