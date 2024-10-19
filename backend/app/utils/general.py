@@ -12,3 +12,11 @@ async def moderate_content(content: str) -> bool:
     if "offensive" in response_text:
         return False
     return True
+
+
+async def generate_response(
+    post_title: str, post_content: str, comment_content: str
+) -> str:
+    prompt = f"Generate a response for the following post and comment:\n\nPost Title: {post_title}\nPost Content: {post_content}\n\nComment Content: {comment_content}\n\nResponse:"
+    response = await model.generate_content_async(prompt)
+    return response.text

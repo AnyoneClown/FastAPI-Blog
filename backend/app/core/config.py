@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     JWT_SECRET: str = os.getenv("JWT_SECRET")
     AI_API_KEY: str = os.getenv("AI_API_KEY")
+    REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379")
+    AI_USER_PASSWORD: str = os.getenv("AI_USER_PASSWORD")
 
     class Config:
         env_file = "backend/app/.env"

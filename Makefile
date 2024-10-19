@@ -28,3 +28,13 @@ migrate: upgrade
 .PHONY: run
 run:
 	poetry run python backend/app/main.py
+
+## redis: Run redis brocker locally with docker(Used for celery)
+.PHONY: redis
+redis:
+	docker run -d --rm --name some-redis -p 6379:6379 redis:latest
+
+## celery: Run celery locally
+.PHONY: celery
+celery:
+	poetry run celery -A backend.app.api.deps.celery_app worker --loglevel=info --pool=solo

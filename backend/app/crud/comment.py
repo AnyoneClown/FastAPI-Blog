@@ -7,9 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from backend.app.models.comment import Comment
+from backend.app.models.post import Post
 from backend.app.schemas.comment import CommentAnalytics, CommentCreate, CommentUpdate
 from backend.app.schemas.user import UserRead
 from backend.app.utils.general import moderate_content
+from backend.app.utils.tasks import generate_auto_response
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,6 +31,13 @@ async def create_comment(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Comment contains inappropriate content",
+        )
+
+    post = await db.get(Post, comment.post_id)
+    if post and post.auto_reply:
+        logger.info("Creating task for auto AI response")
+        generate_auto_response.apply_async(
+            args=[db_comment.id, post.id], countdown=post.reply_delay
         )
 
     return db_comment

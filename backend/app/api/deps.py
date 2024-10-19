@@ -2,7 +2,11 @@ import logging
 import uuid
 from typing import AsyncGenerator, Optional
 
+import dramatiq
 import google.generativeai as genai
+from async_dramatiq.middleware import AsyncMiddleware
+from celery import Celery
+from dramatiq.brokers.redis import RedisBroker
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
@@ -76,3 +80,14 @@ CurrentActiveUser = fastapi_users.current_user(active=True)
 
 genai.configure(api_key=settings.AI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
+
+celery_app = Celery(
+    __name__,
+    broker=settings.REDIS_URL,
+    backend=settings.REDIS_URL,
+    include=["backend.app.utils.tasks"],
+)
+
+redis_broker = RedisBroker(url=settings.REDIS_URL)
+redis_broker.add_middleware(AsyncMiddleware())
+dramatiq.set_broker(redis_broker)
