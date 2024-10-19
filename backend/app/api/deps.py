@@ -1,15 +1,16 @@
 import logging
-from typing import AsyncGenerator, Optional
 import uuid
+from typing import AsyncGenerator, Optional
 
+import google.generativeai as genai
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, UUIDIDMixin, FastAPIUsers
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
     JWTStrategy,
 )
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.app.core.config import settings
@@ -72,3 +73,6 @@ auth_backend = AuthenticationBackend(
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 CurrentActiveUser = fastapi_users.current_user(active=True)
+
+genai.configure(api_key=settings.AI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")

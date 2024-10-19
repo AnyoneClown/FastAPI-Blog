@@ -1,12 +1,13 @@
 import uvicorn
-
 from fastapi import Depends, FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from backend.app.api.deps import CurrentActiveUser, auth_backend, fastapi_users
+from backend.app.api.routes.comments import router as comments_router
+from backend.app.api.routes.post import router as posts_router
 from backend.app.core.config import settings
 from backend.app.models.user import User
 from backend.app.schemas.user import UserCreate, UserRead, UserUpdate
-from backend.app.api.deps import auth_backend, fastapi_users, CurrentActiveUser
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -44,6 +45,8 @@ app.include_router(
     prefix="/users",
     tags=["users"],
 )
+app.include_router(posts_router, prefix="/posts", tags=["posts"])
+app.include_router(comments_router, prefix="/comments", tags=["comments"])
 
 
 @app.get("/")
