@@ -26,7 +26,7 @@ class CommentInDB(CommentBase):
     is_deleted: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CommentAnalytics(BaseModel):
